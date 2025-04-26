@@ -33,11 +33,20 @@ export async function DELETE(req){
     await dbConnect();
     const URLrequest = new URL(req.url); //get the request URL
     console.log(URLrequest, "URLrequest");
+    const type = URLrequest.searchParams.get("type");
     const id = URLrequest.searchParams.get("id");
-    console.log(id, "id");
-    const taskData = await task.findByIdAndDelete(id);
-    return NextResponse.json({userData:taskData, messsage : "Delete Successfully"},{status:200});
-  
+    if (type === "all") {
+        // Delete all tasks
+        await task.deleteMany({});
+        return NextResponse.json({ message: "All tasks deleted successfully" }, { status: 200 });
+      }
+
+      if (id) {
+        // Delete single task
+        const taskData = await task.findByIdAndDelete(id);
+        return NextResponse.json({ userData: taskData, message: "Delete Successfully" }, { status: 200 });
+      }
+      return NextResponse.json({ message: "Invalid request" }, { status: 400 })
 }
 
 export async function PUT(req) {
